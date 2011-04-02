@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from zope.component import getAdapters
-from cromlech.browser.interfaces import IComponent, IViewletManager, IViewlet
-from grokcore.component import baseclass
+from cromlech.browser.interfaces import IViewletManager, IViewlet
+from grokcore.component import baseclass, implements
 from grokcore.component.util import sort_components
 
 
-def query_components(context, request, view, collection, interface=IComponent):
+def query_components(context, request, view, collection, interface=IViewlet):
     """Query components of the given collection :
     * Queries the registry according to context, request, view, manager.
     * Updates the components.
@@ -15,12 +15,12 @@ def query_components(context, request, view, collection, interface=IComponent):
     """
     def registry_components():
         for name, component in getAdapters(
-            (context, request, view), interface):
+            (context, request, view, collection), interface):
             component.update()
             if bool(component.available) is True:
                 yield component
 
-    assert interface.isOrExtends(IComponent).
+    assert interface.isOrExtends(IViewlet)
     return registry_components()
 
 
@@ -35,10 +35,10 @@ class ViewletManager(object):
     A viewlet manager is a manager meant to be used at a view level.
     """
     baseclass()
+    implements(IViewletManager)
 
     template = None
     __name__ = None
-    aggregate = aggregate_views
 
     def __init__(self, context, request, view):
         self.context = context
@@ -53,6 +53,9 @@ class ViewletManager(object):
             'manager': self,
             }
 
+    def aggregate(self, viewlets):
+        return aggregate_views(viewlets)
+
     def update(self):
         self.viewlets = sort_components(list(query_components(
             self.context, self.request, self.view, self, interface=IViewlet)))
@@ -63,7 +66,9 @@ class ViewletManager(object):
         return self.template.render(self)
 
     def __call__(self):
+        self.update()
         return self.render()
+
 
 
 class Viewlet(object):
@@ -71,6 +76,7 @@ class Viewlet(object):
     A viewlet is to be used at a view level.
     """
     baseclass()
+    implements(IViewlet)
 
     template = None
     __name__ = None
@@ -99,7 +105,7 @@ class Viewlet(object):
         # Override if you need to return anything not
         # as simple as a unique unconditional template.
         if self.template is None:
-            return NotImplementedError(
+            raise NotImplementedError(
                 '%r : Provide a template or override the render method' %
                 self.__class__)
         return self.template.render(self)

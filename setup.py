@@ -9,14 +9,18 @@ readme = open(join('src', 'dolmen', 'viewlet', "README.txt")).read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
 install_requires = [
-    'setuptools',
-    'martian',
-    'grokcore.component',
-    'cromlech.io',
     'cromlech.browser',
+    'cromlech.io',
+    'grokcore.component',
+    'martian',
+    'setuptools',
+    'zc.buildout',
+    'zope.component',
+    'zope.interface',
     ]
 
 tests_require = [
+    'zope.configuration',
     ]
 
 setup(name = name,

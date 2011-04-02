@@ -10,7 +10,7 @@ from zope.component import provideAdapter
 
 class ViewletManagerGrokker(martian.ClassGrokker):
     martian.component(dolmen.viewlet.ViewletManager)
-    martian.directive(dolmen.viewlet.context)
+    martian.directive(dolmen.viewlet.context, default=Interface)
     martian.directive(dolmen.viewlet.request, default=Interface)
     martian.directive(dolmen.viewlet.view)
     martian.directive(dolmen.viewlet.provides, default=IViewletManager)
@@ -28,7 +28,7 @@ class ViewletManagerGrokker(martian.ClassGrokker):
 
 
 class ViewletGrokker(martian.ClassGrokker):
-    martian.component(dolmen.viewlet.ViewletManager)
+    martian.component(dolmen.viewlet.Viewlet)
     martian.directive(dolmen.viewlet.context, default=Interface)
     martian.directive(dolmen.viewlet.request, default=Interface)
     martian.directive(dolmen.viewlet.view)
