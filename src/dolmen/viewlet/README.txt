@@ -65,4 +65,20 @@ Exemple component
   NotImplementedError: <class 'dolmen.viewlet.tests.weatherblock'> :
   Provide a template or override the render method
 
-  >>> 
+  >>> WeatherBlock.template = generic_template
+  >>> left()
+  u'A simple template for <dolmen.viewlet.tests.weatherblock object at ...>.'
+
+  >>> class AnotherBlock(dolmen.viewlet.Viewlet):
+  ...     dolmen.viewlet.manager(LeftColumn)
+  ...     template = generic_template
+
+  >>> testing.grok_component('another', AnotherBlock)
+  True
+
+  >>> left()
+  u'A simple template for <dolmen.viewlet.tests.anotherblock object at ...>.\nA simple template for <dolmen.viewlet.tests.weatherblock object at ...>.'
+
+  >>> dolmen.viewlet.order.set(AnotherBlock, (10, 10))
+  >>> left()
+  u'A simple template for <dolmen.viewlet.tests.weatherblock object at ...>.\nA simple template for <dolmen.viewlet.tests.anotherblock object at ...>.'
