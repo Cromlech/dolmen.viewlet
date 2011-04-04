@@ -7,9 +7,6 @@ from cromlech.browser.interfaces import IRenderer, IViewSlot
 class IViewletManager(IViewSlot):
     """compose a set of viewlet together and render in a more global view
     """
-    context = Attribute("Object that the view presents.")
-    request = Attribute("Request that the view was looked up with.")
-    view = Attribute("View on which the manager is called.")
     viewlets = Attribute("A list of the components to aggregate.")
 
 
