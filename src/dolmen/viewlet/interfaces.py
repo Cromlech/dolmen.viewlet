@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from zope.interface import Attribute
-from cromlech.browser.interfaces import IRenderer
+from cromlech.browser.interfaces import IRenderer, IViewSlot
 
 
-class IViewletManager(IRenderer):
+class IViewletManager(IViewSlot):
     """compose a set of viewlet together and render in a more global view
     """
     context = Attribute("Object that the view presents.")
