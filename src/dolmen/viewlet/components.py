@@ -8,6 +8,7 @@ from grokcore.component.util import sort_components
 
 def query_components(context, request, view, collection, interface=IViewlet):
     """Query components of the given collection :
+    
     * Queries the registry according to context, request, view, manager.
     * Updates the components.
     * Filters out the unavailable components.
@@ -20,7 +21,7 @@ def query_components(context, request, view, collection, interface=IViewlet):
             if bool(component.available) is True:
                 yield component
 
-    assert interface.isOrExtends(IViewlet)
+    assert interface.isOrExtends(IViewlet), "interface must extends IViewlet"
     return registry_components()
 
 
