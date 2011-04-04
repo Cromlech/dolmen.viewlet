@@ -7,10 +7,15 @@ dolmen.viewlet
 Test environnment
 =================
 
+Let set up some context : a content, a request coming from a browser and a view
+inside which viewlets would display ::
+
   >>> mammoth = object()
   >>> request = object()
   >>> view = object()
 
+We also have the simplest possible template ::
+  
   >>> class Template(object):
   ...     def render(self, renderer):
   ...         return "A simple template for %r." % renderer
@@ -21,12 +26,19 @@ Test environnment
 Example manager
 ===============
 
+The manager is a location (a slot) where viewlet will display. 
+It manage viewlets in the sense of a conductor asking them to render and
+merging outputs ::
+
   >>> import dolmen.viewlet
   >>> from grokcore.component import testing
 
   >>> class LeftColumn(dolmen.viewlet.ViewletManager):
   ...     pass
-
+  
+  >>> dolmen.viewlet.IViewletManager.implementedBy(LeftColumn)
+  True
+ 
   >>> LeftColumn.__name__
   'LeftColumn'
 
@@ -35,6 +47,8 @@ Example manager
 
   >>> LeftColumn.__name__
   'leftcolumn'
+
+Nothing to display yet since we have no managed viewlet ::
 
   >>> left = LeftColumn(mammoth, request, view)
   >>> left()
@@ -48,9 +62,14 @@ Example manager
 Exemple component
 =================
 
+Let's make a viewlet ::
+
   >>> class WeatherBlock(dolmen.viewlet.Viewlet):
   ...     dolmen.viewlet.slot(LeftColumn)
-
+  
+  >>> dolmen.viewlet.IViewlet.implementedBy(WeatherBlock)
+  True
+  
   >>> testing.grok_component('weather', WeatherBlock)
   True
 
@@ -58,6 +77,8 @@ Exemple component
   >>> left.update()
   >>> print left.viewlets
   [<dolmen.viewlet.tests.weatherblock object at ...>]
+  
+A viewlet shall either have a template or implements its own render ::
 
   >>> left()
   Traceback (most recent call last):
@@ -65,9 +86,13 @@ Exemple component
   NotImplementedError: <class 'dolmen.viewlet.tests.weatherblock'> :
   Provide a template or override the render method
 
+Gimme a template ::
+
   >>> WeatherBlock.template = generic_template
   >>> left()
   u'A simple template for <dolmen.viewlet.tests.weatherblock object at ...>.'
+
+Let's test with more than one viewlet ::
 
   >>> class AnotherBlock(dolmen.viewlet.Viewlet):
   ...     dolmen.viewlet.slot(LeftColumn)
