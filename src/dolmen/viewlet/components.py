@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from zope.component import getAdapters
-from cromlech.browser.interfaces import IViewletManager, IViewlet
+from dolmen.viewlet import IViewletManager, IViewlet
 from grokcore.component import baseclass, implements
 from grokcore.component.util import sort_components
 
@@ -44,6 +44,7 @@ class ViewletManager(object):
         self.context = context
         self.request = request
         self.view = view
+        self.viewlets = []
 
     def namespace(self):
         return {
@@ -68,7 +69,6 @@ class ViewletManager(object):
     def __call__(self):
         self.update()
         return self.render()
-
 
 
 class Viewlet(object):
