@@ -49,7 +49,7 @@ Exemple component
 =================
 
   >>> class WeatherBlock(dolmen.viewlet.Viewlet):
-  ...     dolmen.viewlet.manager(LeftColumn)
+  ...     dolmen.viewlet.slot(LeftColumn)
 
   >>> testing.grok_component('weather', WeatherBlock)
   True
@@ -70,7 +70,7 @@ Exemple component
   u'A simple template for <dolmen.viewlet.tests.weatherblock object at ...>.'
 
   >>> class AnotherBlock(dolmen.viewlet.Viewlet):
-  ...     dolmen.viewlet.manager(LeftColumn)
+  ...     dolmen.viewlet.slot(LeftColumn)
   ...     template = generic_template
 
   >>> testing.grok_component('another', AnotherBlock)

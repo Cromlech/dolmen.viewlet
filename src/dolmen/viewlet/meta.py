@@ -32,18 +32,18 @@ class ViewletGrokker(martian.ClassGrokker):
     martian.directive(dolmen.viewlet.context, default=Interface)
     martian.directive(dolmen.viewlet.request, default=Interface)
     martian.directive(dolmen.viewlet.view)
-    martian.directive(dolmen.viewlet.manager)
+    martian.directive(dolmen.viewlet.slot)
     martian.directive(dolmen.viewlet.provides, default=IViewlet)
     martian.directive(dolmen.viewlet.name, get_default=default_view_name)
 
     def execute(self, factory, config,
-                context, request, view, manager, provides, name, **kw):
+                context, request, view, slot, provides, name, **kw):
         assert provides.isOrExtends(IViewlet)
         factory.__name__ = name
         config.action(
             discriminator=(
-                'viewlet', context, request, view, manager, name),
+                'viewlet', context, request, view, slot, name),
             callable=provideAdapter,
-            args=(factory, (context, request, view, manager),
+            args=(factory, (context, request, view, slot),
                   provides, name))
         return True
