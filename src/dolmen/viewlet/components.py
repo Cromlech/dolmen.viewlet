@@ -62,14 +62,15 @@ class ViewletManager(object):
         self.viewlets = sort_components(list(query_components(
             self.context, self.request, self.view, self, interface=IViewlet)))
 
-    def render(self):
+    def render(self, *args, **kwargs):
         if self.template is None:
             return self.aggregate(self.viewlets)
         return self.template.render(self)
 
-    def __call__(self):
-        self.update()
-        return self.render()
+    def __call__(self, *args, **kwargs):
+        """Update and render"""
+        self.update(*args, **kwargs)
+        return self.render(*args, **kwargs)
 
 
 class Viewlet(object):
@@ -102,7 +103,7 @@ class Viewlet(object):
         # Can be overriden easily.
         pass
 
-    def render(self):
+    def render(self, *args, **kwargs):
         # Override if you need to return anything not
         # as simple as a unique unconditional template.
         if self.template is None:
