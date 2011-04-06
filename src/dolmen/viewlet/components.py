@@ -58,7 +58,7 @@ class ViewletManager(object):
     def aggregate(self, viewlets):
         return aggregate_views(viewlets)
 
-    def update(self):
+    def update(self, *args, **kwargs):
         self.viewlets = sort_components(list(query_components(
             self.context, self.request, self.view, self, interface=IViewlet)))
 
@@ -98,7 +98,7 @@ class Viewlet(object):
             'viewlet': self,
             }
     
-    def update(self):
+    def update(self, *args, **kwargs):
         # Can be overriden easily.
         pass
 
