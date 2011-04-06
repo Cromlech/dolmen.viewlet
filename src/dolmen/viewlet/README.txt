@@ -26,7 +26,6 @@ get some tools :
 
   >>> from zope.interface.verify import verifyClass
 
-
 Example manager
 ===============
 
