@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from zope.component import getAdapters
+from zope.component import getAdapters, getMultiAdapter
+from cromlech.io import IRequest
+from cromlech.browser import IView
 from dolmen.viewlet import IViewletManager, IViewlet
 from grokcore.component import baseclass, implements
 from grokcore.component.util import sort_components
@@ -8,12 +10,13 @@ from grokcore.component.util import sort_components
 
 def query_components(context, request, view, collection, interface=IViewlet):
     """Query components of the given collection :
-    
+
     * Queries the registry according to context, request, view, manager.
     * Updates the components.
     * Filters out the unavailable components.
     * Returns an iterable of components.
     """
+
     def registry_components():
         for name, component in getAdapters(
             (context, request, view, collection), interface):
@@ -22,7 +25,23 @@ def query_components(context, request, view, collection, interface=IViewlet):
                 yield component
 
     assert interface.isOrExtends(IViewlet), "interface must extends IViewlet"
+    assert IRequest.providedBy(request), "request must implements IRequest"
+    assert IView.providedBy(view), "view must implements IView"
     return registry_components()
+
+
+def query_viewlet_manager(view, context=None, request=None,
+                          interface=IViewletManager, name=''):
+    """Retrieve a viewlet manager"""
+    assert IView.providedBy(view), "view must implements IView"
+    if context is None:
+        context = view.context
+    if request is None:
+        request = view.request
+    (assert interface.isOrExtends(IViewletManager),
+            "interface must extends IViewletManager")
+    assert IRequest.providedBy(request), "request must implements IRequest"
+    return getMultiAdapter((context, request, view),  name)
 
 
 def aggregate_views(views):
@@ -98,7 +117,7 @@ class Viewlet(object):
             'manager': self.manager,
             'viewlet': self,
             }
-    
+
     def update(self, *args, **kwargs):
         # Can be overriden easily.
         pass
