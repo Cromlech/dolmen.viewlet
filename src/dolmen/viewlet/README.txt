@@ -21,6 +21,10 @@ We also have the simplest possible template ::
   ...         return "A simple template for %r." % renderer
 
   >>> generic_template = Template()
+  
+get some tools :
+
+  >>> from zope.interface.verify import verifyClass
 
 
 Example manager
@@ -32,12 +36,18 @@ merging outputs ::
 
   >>> import dolmen.viewlet
   >>> from grokcore.component import testing
+  
+ViewletManager is our IViewletManager base implementation ::
+
+  >>> verifyClass(dolmen.viewlet.IViewletManager,
+  ...               dolmen.viewlet.ViewletManager)
+  True
+
+Let's make ours ::
 
   >>> class LeftColumn(dolmen.viewlet.ViewletManager):
   ...     pass
-  
-  >>> dolmen.viewlet.IViewletManager.implementedBy(LeftColumn)
-  True
+
  
   >>> LeftColumn.__name__
   'LeftColumn'
@@ -61,6 +71,11 @@ Nothing to display yet since we have no managed viewlet ::
 
 Exemple component
 =================
+
+Viewlet provide a base implementation of IViewlet ::
+
+  >>> verifyClass(dolmen.viewlet.IViewlet, dolmen.viewlet.Viewlet)
+  True
 
 Let's make a viewlet ::
 
