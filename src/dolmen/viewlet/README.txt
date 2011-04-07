@@ -12,16 +12,10 @@ inside which viewlets would display ::
 
   >>> mammoth = object()
 
-  >>> from zope.interface import Interface, implements
-  >>> from cromlech.io import IRequest
-  >>> class Request(object):
-  ...     implements(IRequest)
-  >>> request = Request()
-
-  >>> from cromlech.browser import IView
-  >>> class View(object):
-  ...     implements(IView) 
-  >>> view = View()
+  >>> from cromlech.io.tests import TestRequest
+  >>> request = TestRequest()
+  >>> from cromlech.browser.tests import TestView
+  >>> view = TestView()
 
 We also have the simplest possible template ::
   

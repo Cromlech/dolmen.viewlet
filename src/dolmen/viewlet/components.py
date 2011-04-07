@@ -38,10 +38,10 @@ def query_viewlet_manager(view, context=None, request=None,
         context = view.context
     if request is None:
         request = view.request
-    (assert interface.isOrExtends(IViewletManager),
-            "interface must extends IViewletManager")
+    assert interface.isOrExtends(IViewletManager), (
+                                    "interface must extends IViewletManager")
     assert IRequest.providedBy(request), "request must implements IRequest"
-    return getMultiAdapter((context, request, view),  name)
+    return getMultiAdapter((context, request, view), interface, name)
 
 
 def aggregate_views(views):
