@@ -1,0 +1,11 @@
+<configure
+   xmlns="http://namespaces.zope.org/zope"
+   xmlns:zcml="http://namespaces.zope.org/zcml"
+   xmlns:grok="http://namespaces.zope.org/grok">
+
+  <configure zcml:condition="installed grokcore.security"> 
+    <include package="grokcore.security" file="meta.zcml" />
+    <grok:grok package=".security" />
+  </configure>
+
+</configure>
