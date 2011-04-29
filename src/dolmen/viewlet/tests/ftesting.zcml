@@ -1,0 +1,32 @@
+<configure xmlns="http://namespaces.zope.org/zope">
+
+  <include package="dolmen.viewlet" file="meta.zcml" />
+  <include package="dolmen.viewlet" file="security.zcml" />
+
+  <!-- Security -->
+  <include package="zope.securitypolicy" file="meta.zcml" />
+  <include package="zope.principalregistry" file="meta.zcml" />
+  <include package="zope.principalregistry" />
+
+  <securityPolicy
+      component="zope.securitypolicy.zopepolicy.ZopeSecurityPolicy"
+      />
+
+  <principal
+      id="cromlech.user"
+      title="User"
+      login="user"
+      password="cromlech"
+      />
+
+  <principal
+      id="cromlech.manager"
+      title="Manager"
+      login="manager"
+      password="cromlech"
+      />
+
+  <grant principal="cromlech.user" permission="zope.View" />
+  <grantAll principal="cromlech.manager" />
+
+</configure>

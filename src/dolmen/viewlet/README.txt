@@ -12,9 +12,9 @@ inside which viewlets would display ::
 
   >>> mammoth = object()
 
-  >>> from cromlech.io.tests import TestRequest
+  >>> from cromlech.io.testing import TestRequest
   >>> request = TestRequest()
-  >>> from cromlech.browser.tests import TestView
+  >>> from cromlech.browser.testing import TestView
   >>> view = TestView()
 
 We also have the simplest possible template ::
@@ -68,7 +68,7 @@ Nothing to display yet since we have no managed viewlet ::
 
   >>> left.template = generic_template
   >>> left()
-  'A simple template for <dolmen.viewlet.tests.leftcolumn object at ...>.'
+  'A simple template for <leftcolumn object at ...>.'
 
 
 Exemple component
@@ -93,21 +93,21 @@ Let's make a viewlet ::
   >>> left.template = None
   >>> left.update()
   >>> print left.viewlets
-  [<dolmen.viewlet.tests.weatherblock object at ...>]
+  [<weatherblock object at ...>]
   
 A viewlet shall either have a template or implements its own render ::
 
   >>> left()
   Traceback (most recent call last):
   ...
-  NotImplementedError: <class 'dolmen.viewlet.tests.weatherblock'> :
+  NotImplementedError: <class 'weatherblock'> :
   Provide a template or override the render method
 
 Gimme a template ::
 
   >>> WeatherBlock.template = generic_template
   >>> left()
-  u'A simple template for <dolmen.viewlet.tests.weatherblock object at ...>.'
+  u'A simple template for <weatherblock object at ...>.'
 
 Let's test with more than one viewlet ::
 
@@ -119,8 +119,8 @@ Let's test with more than one viewlet ::
   True
 
   >>> left()
-  u'A simple template for <dolmen.viewlet.tests.anotherblock object at ...>.\nA simple template for <dolmen.viewlet.tests.weatherblock object at ...>.'
+  u'A simple template for <anotherblock object at ...>.\nA simple template for <weatherblock object at ...>.'
 
   >>> dolmen.viewlet.order.set(AnotherBlock, (10, 10))
   >>> left()
-  u'A simple template for <dolmen.viewlet.tests.weatherblock object at ...>.\nA simple template for <dolmen.viewlet.tests.anotherblock object at ...>.'
+  u'A simple template for <weatherblock object at ...>.\nA simple template for <anotherblock object at ...>.'

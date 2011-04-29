@@ -14,12 +14,12 @@ install_requires = [
     'grokcore.component',
     'martian',
     'setuptools',
-    'zc.buildout',
     'zope.component',
     'zope.interface',
     ]
 
 tests_require = [
+    'cromlech.browser[test]',
     'zope.configuration',
     ]
 

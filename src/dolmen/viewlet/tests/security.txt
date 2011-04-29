@@ -1,0 +1,74 @@
+Security
+========
+
+Registering base components
+---------------------------
+
+  >>> import dolmen.viewlet
+  >>> from grokcore.component import testing
+
+  >>> class Header(dolmen.viewlet.ViewletManager):
+  ...     pass
+
+  >>> testing.grok_component('header', Header)
+  True
+
+  >>> from grokcore.security import require
+  >>> class Logo(dolmen.viewlet.Viewlet):
+  ...     dolmen.viewlet.slot(Header)
+  ...     def render(self):
+  ...         return u"A nice logo"
+ 
+  >>> testing.grok_component('logo', Logo)
+  True
+
+  >>> class Breadcrumb(dolmen.viewlet.Viewlet):
+  ...     dolmen.viewlet.slot(Header)
+  ...     require('zope.ManageContent')
+  ...     def render(self):
+  ...         return u"You are here > www > cromlech > viewlet"
+
+  >>> testing.grok_component('crumbs', Breadcrumb)
+  True
+
+
+Instanciating the manager
+-------------------------
+
+  >>> from cromlech.io.testing import TestRequest
+  >>> from cromlech.browser.testing import TestView
+
+  >>> context = object()
+  >>> request = TestRequest()
+  >>> view = TestView(context, request)
+  >>> manager = Header(context, request, view)
+
+
+Security declaration
+--------------------
+
+  >>> from zope.security.management import newInteraction, endInteraction
+  >>> from zope.security.testing import Principal, Participation
+
+
+Allowed
+~~~~~~~
+
+  >>> newInteraction(Participation(Principal('cromlech.manager')))
+
+  >>> print manager()
+  You are here > www > cromlech > viewlet
+  A nice logo
+
+  >>> endInteraction()
+
+
+Disallowed
+~~~~~~~~~~
+
+  >>> newInteraction(Participation(Principal('cromlech.user')))
+
+  >>> print manager()
+  A nice logo
+
+  >>> endInteraction()
