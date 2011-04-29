@@ -23,6 +23,13 @@ tests_require = [
     'zope.configuration',
     ]
 
+security_require = [
+    'grokcore.security >= 1.5',
+    'zope.principalregistry',
+    'zope.security',
+    'zope.securitypolicy',
+    ]
+
 setup(name = name,
       version = version,
       description = 'Dolmen viewlets components',
@@ -32,6 +39,11 @@ setup(name = name,
       author_email = 'trollfot@gmail.com',
       url = '',
       license = 'ZPL',
+      classifiers = [
+        'Environment :: Web Environment',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        ],
       packages=find_packages('src', exclude=['ez_setup']),
       package_dir={'': 'src'},
       namespace_packages = ['dolmen'],
@@ -40,10 +52,8 @@ setup(name = name,
       zip_safe = False,
       tests_require = tests_require,
       install_requires = install_requires,
-      extras_require = {'test': tests_require},
-      classifiers = [
-        'Environment :: Web Environment',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        ],
+      extras_require = {
+          'test': tests_require,
+          'security': security_require,
+          },
       )
