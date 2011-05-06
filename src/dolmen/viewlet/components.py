@@ -15,7 +15,7 @@ try:
             return zope.security.canAccess(component, attribute)
         except zope.security.interfaces.Forbidden:
             return False
-    
+
     CHECKER = check_security
 except ImportError:
     CHECKER = None
@@ -40,7 +40,6 @@ def query_components(context, request, view, collection, interface=IViewlet):
             component.update()
             if bool(component.available) is True:
                 yield component
-
 
     assert interface.isOrExtends(IViewlet), "interface must extends IViewlet"
     assert IRequest.providedBy(request), "request must implements IRequest"
