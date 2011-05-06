@@ -76,7 +76,6 @@ class ViewletManager(object):
     implements(IViewletManager)
 
     template = None
-    __name__ = None
 
     def __init__(self, context, request, view):
         self.context = context
@@ -118,7 +117,6 @@ class Viewlet(object):
     implements(IViewlet)
 
     template = None
-    __name__ = None
     available = True
 
     def __init__(self, context, request, view, manager):

@@ -5,7 +5,7 @@ from os.path import join
 
 name = 'dolmen.viewlet'
 version = '0.1'
-readme = open(join('src', 'dolmen', 'viewlet', "README.txt")).read()
+readme = open('README.txt').read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
 install_requires = [

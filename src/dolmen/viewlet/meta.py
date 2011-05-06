@@ -19,7 +19,7 @@ class ViewletManagerGrokker(martian.ClassGrokker):
     def execute(self, factory, config,
                 context, request, view, provides, name, **kw):
         assert provides.isOrExtends(IViewletManager)
-        factory.__name__ = name
+        factory.__component_name__ = name
         config.action(
             discriminator=('viewletManager', context, request, view, name),
             callable=provideAdapter,
@@ -39,7 +39,7 @@ class ViewletGrokker(martian.ClassGrokker):
     def execute(self, factory, config,
                 context, request, view, slot, provides, name, **kw):
         assert provides.isOrExtends(IViewlet)
-        factory.__name__ = name
+        factory.__component_name__ = name
         config.action(
             discriminator=(
                 'viewlet', context, request, view, slot, name),
