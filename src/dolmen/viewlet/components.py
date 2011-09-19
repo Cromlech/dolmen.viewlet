@@ -76,11 +76,16 @@ class ViewletManager(object):
 
     template = None
 
+    @property
+    def __name__(self):
+        return getattr(self, '__component_name__', None)
+
     def __init__(self, context, request, view):
         self.context = context
         self.request = request
         self.view = view
         self.viewlets = []
+        self.__parent__ = view
 
     def namespace(self):
         return {
@@ -118,11 +123,16 @@ class Viewlet(object):
     template = None
     available = True
 
+    @property
+    def __name__(self):
+        return getattr(self, '__component_name__', None)
+
     def __init__(self, context, request, view, manager):
         self.context = context
         self.request = request
         self.view = view
         self.manager = manager
+        self.__parent__ = manager
 
     def namespace(self):
         return {

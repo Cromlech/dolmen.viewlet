@@ -11,6 +11,7 @@ from zope.interface.verify import verifyClass, verifyObject
 from zope.component import getMultiAdapter
 from zope.security.management import newInteraction, endInteraction
 from zope.security.testing import Principal, Participation
+from zope.location import ILocation
 
 import pytest
 from dolmen.viewlet import testing
@@ -122,6 +123,10 @@ def test_manager_viewlet():
     assert manager.__class__ == LeftColumn
     assert len(left.viewlets) == 1
 
+    # A manager should be a valid ILocation
+    assert ILocation.providedBy(manager)
+    assert manager.__parent__ is view
+    assert manager.__name__ == 'leftcolumn'
 
     # We need a template defined or it fails.
     with pytest.raises(NotImplementedError) as e:
@@ -135,7 +140,6 @@ def test_manager_viewlet():
     WeatherBlock.template = generic_template
     assert left() == u'A simple template for WeatherBlock.'
 
-
     # Let's register another viewlet
     class AnotherBlock(dolmen.viewlet.Viewlet):
         require('zope.ManageContent')
@@ -144,6 +148,12 @@ def test_manager_viewlet():
 
     assert grok_component('another', AnotherBlock)
     assert left() ==  u'A simple template for WeatherBlock.'
+
+    # A viewlet should be a valid ILocation
+    viewlet = left.viewlets[0]
+    assert ILocation.providedBy(viewlet)
+    assert viewlet.__parent__.__class__ == LeftColumn
+    assert viewlet.__name__ == 'weatherblock'
 
     endInteraction()
 
