@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.1b1 (2011-09-19)
+------------------
+
+* `Viewlet` and `ViewletManager` are now providing `zope.location.ILocation`.
+
+
 0.1a1 (2011-05-06)
 ------------------
 

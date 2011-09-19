@@ -33,23 +33,23 @@ def teardown_module(module):
 
 
 class Template(object):
-  """A template mockup.
-  """
-  def render(self, renderer):
-    return "A simple template for %s." % renderer.__class__.__name__
+    """A template mockup.
+    """
+    def render(self, renderer):
+        return "A simple template for %s." % renderer.__class__.__name__
 
 
 class Header(dolmen.viewlet.ViewletManager):
-     pass
+    pass
 
 
 class Logo(dolmen.viewlet.Viewlet):
-     dolmen.viewlet.slot(Header)
+    dolmen.viewlet.slot(Header)
 
-     def render(self):
-         return u"A nice logo"
+    def render(self):
+        return u"A nice logo"
 
- 
+
 class Breadcrumb(dolmen.viewlet.Viewlet):
     dolmen.viewlet.slot(Header)
     require('zope.ManageContent')
@@ -58,19 +58,17 @@ class Breadcrumb(dolmen.viewlet.Viewlet):
         return u"You are here > www > cromlech > viewlet"
 
 
-
 def test_classes_integrity():
 
-  assert verifyClass(dolmen.viewlet.IViewlet,
-                     dolmen.viewlet.Viewlet) is True
+    assert verifyClass(dolmen.viewlet.IViewlet,
+                       dolmen.viewlet.Viewlet) is True
 
-  assert verifyClass(dolmen.viewlet.IViewletManager,
-                     dolmen.viewlet.ViewletManager) is True
-
+    assert verifyClass(dolmen.viewlet.IViewletManager,
+                       dolmen.viewlet.ViewletManager) is True
 
 
 def test_manager_viewlet():
-    """The manager is a location (a slot) where viewlet will display. 
+    """The manager is a location (a slot) where viewlet will display.
     It supervises the rendering of each viewlet and merged the output.
     """
     # We define the actors
@@ -79,7 +77,6 @@ def test_manager_viewlet():
     view = TestView(mammoth, request)
     generic_template = Template()
 
-  
     class LeftColumn(dolmen.viewlet.ViewletManager):
         pass
 
@@ -99,16 +96,14 @@ def test_manager_viewlet():
     manager = dolmen.viewlet.query_viewlet_manager(view, name='leftcolumn')
     assert manager.__class__ == LeftColumn
 
-
     left.template = generic_template
     assert left() == 'A simple template for LeftColumn.'
-
 
     # We now assign a viewlet to our manager
     class WeatherBlock(dolmen.viewlet.Viewlet):
         require('zope.Public')
         dolmen.viewlet.slot(LeftColumn)
-  
+
     assert dolmen.viewlet.IViewlet.implementedBy(WeatherBlock) is True
     assert grok_component('weather', WeatherBlock) is True
 
@@ -130,11 +125,11 @@ def test_manager_viewlet():
 
     # We need a template defined or it fails.
     with pytest.raises(NotImplementedError) as e:
-      left()
+        left()
 
     assert str(e.value) == (
-      "<class 'dolmen.viewlet.tests.test_package.WeatherBlock'> : "
-      "Provide a template or override the render method")
+        "<class 'dolmen.viewlet.tests.test_package.WeatherBlock'> : "
+        "Provide a template or override the render method")
 
     # We now define a template
     WeatherBlock.template = generic_template
@@ -147,7 +142,7 @@ def test_manager_viewlet():
         template = generic_template
 
     assert grok_component('another', AnotherBlock)
-    assert left() ==  u'A simple template for WeatherBlock.'
+    assert left() == u'A simple template for WeatherBlock.'
 
     # A viewlet should be a valid ILocation
     viewlet = left.viewlets[0]
@@ -158,13 +153,13 @@ def test_manager_viewlet():
     endInteraction()
 
     newInteraction(Participation(Principal('cromlech.manager')))
-    
+
     assert left() == (u'A simple template for AnotherBlock.\n'
                       u'A simple template for WeatherBlock.')
 
     # We should be able to set an order
     dolmen.viewlet.order.set(AnotherBlock, (10, 10))
-    assert left() ==  (u'A simple template for WeatherBlock.\n'
-                       u'A simple template for AnotherBlock.')
+    assert left() == (u'A simple template for WeatherBlock.\n'
+                      u'A simple template for AnotherBlock.')
 
     endInteraction()
