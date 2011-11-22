@@ -2,7 +2,7 @@
 
 from zope.component import getAdapters, getMultiAdapter
 from cromlech.io import IRequest
-from cromlech.browser import IView
+from cromlech.browser import IView, negotiate
 from dolmen.viewlet import IViewletManager, IViewlet
 from grokcore.component import baseclass, implements
 from grokcore.component.util import sort_components
@@ -98,6 +98,10 @@ class ViewletManager(object):
     def aggregate(self, viewlets):
         return aggregate_views(viewlets)
 
+    @property
+    def target_language(self):
+        return negotiate(self.request)
+
     def update(self, *args, **kwargs):
         self.viewlets = sort_components(list(query_components(
             self.context, self.request, self.view, self, interface=IViewlet)))
@@ -105,7 +109,7 @@ class ViewletManager(object):
     def render(self, *args, **kwargs):
         if self.template is None:
             return self.aggregate(self.viewlets)
-        return self.template.render(self)
+        return self.template.render(self, target_language=self.target_language)
 
     def __call__(self, *args, **kwargs):
         """Update and render"""
@@ -143,6 +147,10 @@ class Viewlet(object):
             'viewlet': self,
             }
 
+    @property
+    def target_language(self):
+        return negotiate(self.request)
+
     def update(self, *args, **kwargs):
         # Can be overriden easily.
         pass
@@ -154,4 +162,4 @@ class Viewlet(object):
             raise NotImplementedError(
                 '%r : Provide a template or override the render method' %
                 self.__class__)
-        return self.template.render(self)
+        return self.template.render(self, target_language=self.target_language)
