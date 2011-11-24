@@ -2,7 +2,8 @@
 
 from zope.component import getAdapters, getMultiAdapter
 from cromlech.io import IRequest
-from cromlech.browser import IView, negotiate
+from cromlech.browser import IView
+from cromlech.i18n import ILanguage
 from dolmen.viewlet import IViewletManager, IViewlet
 from grokcore.component import baseclass, implements
 from grokcore.component.util import sort_components
@@ -100,7 +101,7 @@ class ViewletManager(object):
 
     @property
     def target_language(self):
-        return negotiate(self.request)
+        return ILanguage(self.request)
 
     def update(self, *args, **kwargs):
         self.viewlets = sort_components(list(query_components(
@@ -149,7 +150,7 @@ class Viewlet(object):
 
     @property
     def target_language(self):
-        return negotiate(self.request)
+        return ILanguage(self.request)
 
     def update(self, *args, **kwargs):
         # Can be overriden easily.
