@@ -44,7 +44,6 @@ def query_components(context, request, view, collection, interface=IViewlet):
 
     assert interface.isOrExtends(IViewlet), "interface must extends IViewlet"
     assert IRequest.providedBy(request), "request must implements IRequest"
-    assert IView.providedBy(view), "view must implements IView"
     return registry_components()
 
 
