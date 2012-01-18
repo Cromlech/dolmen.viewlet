@@ -1,6 +1,13 @@
 Changes
 =======
 
+0.2 (2012-01-17)
+----------------
+
+* i18n is now a result of a non-obstrusive adaptation. This prevents any
+  error occuring when there's no language preferences provided.
+
+
 0.2a1 (2011-11-24)
 ------------------
 

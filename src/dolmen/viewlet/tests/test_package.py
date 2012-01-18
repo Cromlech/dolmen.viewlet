@@ -5,8 +5,7 @@ import dolmen.viewlet
 
 from grokcore.security import require
 from cromlech.browser.interfaces import IViewSlot
-from cromlech.browser.testing import TestView
-from cromlech.io.testing import TestRequest
+from cromlech.browser.testing import TestView, TestHTTPRequest
 from zope.interface.verify import verifyClass, verifyObject
 from zope.component import getMultiAdapter
 from zope.security.management import newInteraction, endInteraction
@@ -35,7 +34,7 @@ def teardown_module(module):
 class Template(object):
     """A template mockup.
     """
-    def render(self, renderer):
+    def render(self, renderer, *args, **kws):
         return "A simple template for %s." % renderer.__class__.__name__
 
 
@@ -73,7 +72,7 @@ def test_manager_viewlet():
     """
     # We define the actors
     mammoth = object()
-    request = TestRequest()
+    request = TestHTTPRequest()
     view = TestView(mammoth, request)
     generic_template = Template()
 

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from zope.component import getAdapters, getMultiAdapter
-from cromlech.io import IRequest
-from cromlech.browser import IView
+from cromlech.browser import IView, IHTTPRequest
 from cromlech.i18n import ILanguage
 from dolmen.viewlet import IViewletManager, IViewlet
 from grokcore.component import baseclass, implements
@@ -43,7 +42,7 @@ def query_components(context, request, view, collection, interface=IViewlet):
                 yield component
 
     assert interface.isOrExtends(IViewlet), "interface must extends IViewlet"
-    assert IRequest.providedBy(request), "request must implements IRequest"
+    assert IHTTPRequest.providedBy(request), "request must be an IHTTPRequest"
     return registry_components()
 
 
@@ -57,7 +56,7 @@ def query_viewlet_manager(view, context=None, request=None,
         request = view.request
     assert interface.isOrExtends(IViewletManager), (
                                     "interface must extends IViewletManager")
-    assert IRequest.providedBy(request), "request must implements IRequest"
+    assert IHTTPRequest.providedBy(request), "request must be an IHTTPRequest"
     return getMultiAdapter((context, request, view), interface, name)
 
 
@@ -100,7 +99,7 @@ class ViewletManager(object):
 
     @property
     def target_language(self):
-        return ILanguage(self.request)
+        return ILanguage(self.request, None)
 
     def update(self, *args, **kwargs):
         self.viewlets = sort_components(list(query_components(
@@ -149,7 +148,7 @@ class Viewlet(object):
 
     @property
     def target_language(self):
-        return ILanguage(self.request)
+        return ILanguage(self.request, None)
 
     def update(self, *args, **kwargs):
         # Can be overriden easily.

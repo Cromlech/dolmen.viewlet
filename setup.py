@@ -4,14 +4,14 @@ from setuptools import setup, find_packages
 from os.path import join
 
 name = 'dolmen.viewlet'
-version = '0.2a1'
+version = '0.2'
 readme = open('README.txt').read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
 install_requires = [
-    'cromlech.browser',
+    'cromlech.browser >= 0.3a2',
     'cromlech.i18n',
-    'cromlech.io',
+    'cromlech.io >= 0.2a1',
     'grokcore.component',
     'martian',
     'setuptools',
