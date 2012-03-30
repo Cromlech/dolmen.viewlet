@@ -17,8 +17,19 @@ try:
             return False
 
     CHECKER = check_security
+    PROXY = zope.security.checker.ProxyFactory
 except ImportError:
     CHECKER = None
+    PROXY = None
+
+
+def security_wrapped(func):
+    def wrapped(*args, **kws):
+        raw = func(*args, **kws)
+        if PROXY is not None:
+            return PROXY(raw)
+        return raw
+    return wrapped
 
 
 def query_components(context, request, view, collection, interface=IViewlet):
@@ -46,6 +57,7 @@ def query_components(context, request, view, collection, interface=IViewlet):
     return registry_components()
 
 
+@security_wrapped
 def query_viewlet_manager(view, context=None, request=None,
                           interface=IViewletManager, name=''):
     """Retrieve a viewlet manager"""
@@ -109,11 +121,6 @@ class ViewletManager(object):
         if self.template is None:
             return self.aggregate(self.viewlets)
         return self.template.render(self, target_language=self.target_language)
-
-    def __call__(self, *args, **kwargs):
-        """Update and render"""
-        self.update(*args, **kwargs)
-        return self.render(*args, **kwargs)
 
 
 class Viewlet(object):

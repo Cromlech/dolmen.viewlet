@@ -3,14 +3,19 @@
 """
 import dolmen.viewlet
 
-from grokcore.security import require
 from cromlech.browser.interfaces import IViewSlot
 from cromlech.browser.testing import TestView, TestHTTPRequest
-from zope.interface.verify import verifyClass, verifyObject
+from grokcore.security import require
 from zope.component import getMultiAdapter
-from zope.security.management import newInteraction, endInteraction
-from zope.security.testing import Principal, Participation
+from zope.interface import implements, classProvides
+from zope.interface.verify import verifyClass, verifyObject
 from zope.location import ILocation
+from zope.security.interfaces import IInteraction, ISecurityPolicy
+from zope.security.management import newInteraction, endInteraction
+from zope.security.management import setSecurityPolicy, getSecurityPolicy
+from zope.security.simplepolicies import ParanoidSecurityPolicy
+from zope.security.testing import Principal, Participation
+from zope.security.checker import ProxyFactory, Unauthorized
 
 import pytest
 from dolmen.viewlet import testing
@@ -21,9 +26,23 @@ from zope.testing.cleanup import cleanUp
 layer = ZCMLFileLayer(dolmen.viewlet.tests)
 
 
+class TestPolicy(ParanoidSecurityPolicy):
+
+    def checkPermission(self, permission, object):
+        if permission == "zope.Public":
+            return True
+
+        for p in self.participations:
+            if (permission == 'zope.ManageContent' and
+                p.principal.id == 'Master'):
+                return True
+        return False
+
+
 def setup_module(module):
     layer.setUp()
     testing.grok('dolmen.viewlet.tests.test_package')
+    assert setSecurityPolicy(TestPolicy)
 
 
 def teardown_module(module):
@@ -86,7 +105,9 @@ def test_manager_viewlet():
     # We instanciate, verify and try to render
     left = LeftColumn(mammoth, request, view)
     assert verifyObject(dolmen.viewlet.IViewletManager, left)
-    assert left() == u''
+
+    left.update()
+    assert left.render() == u''
 
     manager = getMultiAdapter((mammoth, request, view),
                               IViewSlot, name='leftcolumn')
@@ -96,7 +117,8 @@ def test_manager_viewlet():
     assert manager.__class__ == LeftColumn
 
     left.template = generic_template
-    assert left() == 'A simple template for LeftColumn.'
+    left.update()
+    assert left.render() == 'A simple template for LeftColumn.'
 
     # We now assign a viewlet to our manager
     class WeatherBlock(dolmen.viewlet.Viewlet):
@@ -106,7 +128,7 @@ def test_manager_viewlet():
     assert dolmen.viewlet.IViewlet.implementedBy(WeatherBlock) is True
     assert grok_component('weather', WeatherBlock) is True
 
-    newInteraction(Participation(Principal('cromlech.user')))
+    newInteraction(Participation(Principal('User')))
 
     left.template = None
     left.update()
@@ -119,12 +141,13 @@ def test_manager_viewlet():
 
     # A manager should be a valid ILocation
     assert ILocation.providedBy(manager)
-    assert manager.__parent__ is view
+    assert manager.__parent__ == view
     assert manager.__name__ == 'leftcolumn'
 
     # We need a template defined or it fails.
     with pytest.raises(NotImplementedError) as e:
-        left()
+        left.update()
+        left.render()
 
     assert str(e.value) == (
         "<class 'dolmen.viewlet.tests.test_package.WeatherBlock'> : "
@@ -132,7 +155,8 @@ def test_manager_viewlet():
 
     # We now define a template
     WeatherBlock.template = generic_template
-    assert left() == u'A simple template for WeatherBlock.'
+    left.update()
+    assert left.render() == u'A simple template for WeatherBlock.'
 
     # Let's register another viewlet
     class AnotherBlock(dolmen.viewlet.Viewlet):
@@ -141,7 +165,8 @@ def test_manager_viewlet():
         template = generic_template
 
     assert grok_component('another', AnotherBlock)
-    assert left() == u'A simple template for WeatherBlock.'
+    left.update()
+    assert left.render() == u'A simple template for WeatherBlock.'
 
     # A viewlet should be a valid ILocation
     viewlet = left.viewlets[0]
@@ -151,14 +176,41 @@ def test_manager_viewlet():
 
     endInteraction()
 
-    newInteraction(Participation(Principal('cromlech.manager')))
+    newInteraction(Participation(Principal('Master')))
 
-    assert left() == (u'A simple template for AnotherBlock.\n'
+    left.update()
+    assert left.render() == (u'A simple template for AnotherBlock.\n'
                       u'A simple template for WeatherBlock.')
 
     # We should be able to set an order
     dolmen.viewlet.order.set(AnotherBlock, (10, 10))
-    assert left() == (u'A simple template for WeatherBlock.\n'
-                      u'A simple template for AnotherBlock.')
+    left.update()
+    assert left.render() == (u'A simple template for WeatherBlock.\n'
+                             u'A simple template for AnotherBlock.')
+
+    endInteraction()
+
+
+    # Let's register a secured viewlet manage
+    class Secured(dolmen.viewlet.ViewletManager):
+        require('zope.ManageContent')
+
+    assert grok_component('secured', Secured) is True
+
+    newInteraction(Participation(Principal('User')))
+
+    # We instanciate, verify and try to render
+    secured = ProxyFactory(Secured(mammoth, request, view))
+    with pytest.raises(Unauthorized):
+        secured.update()
+
+    endInteraction()
+
+
+    newInteraction(Participation(Principal('Master')))
+
+    # We instanciate, verify and try to render
+    secured.update()
+    assert secured.render() == u''
 
     endInteraction()

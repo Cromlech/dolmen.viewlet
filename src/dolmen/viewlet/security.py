@@ -4,9 +4,9 @@ try:
     import martian
     import grokcore.security
     from dolmen import viewlet
-    from cromlech.browser.interfaces import IRenderer
+    from cromlech.browser.interfaces import IRenderer, IViewSlot
 
-    class ViewSecurityGrokker(martian.ClassGrokker):
+    class ViewletSecurityGrokker(martian.ClassGrokker):
         martian.component(viewlet.Viewlet)
         martian.directive(grokcore.security.require, name='permission')
 
@@ -19,6 +19,9 @@ try:
                     args=(factory, method_name, permission),
                     )
             return True
+
+    class ViewletManagerSecurityGrokker(ViewletSecurityGrokker):
+        martian.component(viewlet.ViewletManager)
 
 except ImportError:
     pass

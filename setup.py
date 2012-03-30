@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 from os.path import join
 
 name = 'dolmen.viewlet'
-version = '0.2'
+version = '0.3'
 readme = open('README.txt').read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
@@ -29,9 +29,7 @@ tests_require = [
 
 security_require = [
     'grokcore.security >= 1.5',
-    'zope.principalregistry',
     'zope.security',
-    'zope.securitypolicy',
     ]
 
 setup(name=name,
