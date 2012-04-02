@@ -4,15 +4,15 @@ try:
     import martian
     from grokcore.security import require, util
     from dolmen import viewlet
-    from cromlech.browser.interfaces import IRenderer, IViewSlot
 
     class ViewletSecurityGrokker(martian.ClassGrokker):
         martian.component(viewlet.Viewlet)
         martian.directive(require, default='zope.Public', name='permission')
+        secure = viewlet.IViewlet
 
         def execute(self, factory, config, permission, **kw):
             # we can also check here for ISecuredItem
-            for method_name in IRenderer:
+            for method_name in self.secure:
                 config.action(
                     discriminator=('protectName', factory, method_name),
                     callable=util.protect_getattr,
@@ -21,6 +21,7 @@ try:
 
     class ViewletManagerSecurityGrokker(ViewletSecurityGrokker):
         martian.component(viewlet.ViewletManager)
+        secure = viewlet.IViewletManager
 
 except ImportError:
     pass
