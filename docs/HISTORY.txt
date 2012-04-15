@@ -1,6 +1,19 @@
 Changes
 =======
 
+0.3 (2012-04-15)
+----------------
+
+* Viewlet managers are now secured, just as the viewlets components are.
+* Security is now using the real interface of each component secured.
+* Viewlets and their managers now respect fully the interfaces. Meaning
+  we no longer provide a `__call__` method. `update` and `render` must be
+  used consecutively, as normally assumed.
+* Base security is now set to `zope.Public`. Please, make sure your viewlets
+  are secured properly, if using the security. This change might expose
+  unwanted viewlets (non-explicitly proctected ones).
+
+
 0.2 (2012-01-17)
 ----------------
 
