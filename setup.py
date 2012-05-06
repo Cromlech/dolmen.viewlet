@@ -8,6 +8,7 @@ version = '0.4'
 readme = open('README.txt').read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
+
 install_requires = [
     'cromlech.browser >= 0.5',
     'cromlech.i18n',
@@ -19,6 +20,7 @@ install_requires = [
     'zope.location',
     ]
 
+
 tests_require = [
     'pytest',
     'cromlech.browser [test]',
@@ -26,10 +28,12 @@ tests_require = [
     'zope.testing',
     ]
 
+
 security_require = [
     'grokcore.security >= 1.5',
     'zope.security',
     ]
+
 
 setup(name=name,
       version=version,
