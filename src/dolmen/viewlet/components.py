@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from zope.component import getAdapters, getMultiAdapter
-from cromlech.browser import IView, IHTTPRequest
+from cromlech.browser import IView, IRequest
 from cromlech.i18n import ILanguage
 from dolmen.viewlet import IViewletManager, IViewlet
 from grokcore.component import baseclass, implements
@@ -53,7 +53,7 @@ def query_components(context, request, view, collection, interface=IViewlet):
                 yield component
 
     assert interface.isOrExtends(IViewlet), "interface must extends IViewlet"
-    assert IHTTPRequest.providedBy(request), "request must be an IHTTPRequest"
+    assert IRequest.providedBy(request), "request must be an IRequest"
     return registry_components()
 
 
@@ -67,8 +67,8 @@ def query_viewlet_manager(view, context=None, request=None,
     if request is None:
         request = view.request
     assert interface.isOrExtends(IViewletManager), (
-                                    "interface must extends IViewletManager")
-    assert IHTTPRequest.providedBy(request), "request must be an IHTTPRequest"
+        "interface must extends IViewletManager")
+    assert IRequest.providedBy(request), "request must be an IRequest"
     return getMultiAdapter((context, request, view), interface, name)
 
 
@@ -120,7 +120,8 @@ class ViewletManager(object):
     def render(self, *args, **kwargs):
         if self.template is None:
             return self.aggregate(self.viewlets)
-        return self.template.render(self, target_language=self.target_language)
+        return self.template.render(
+           self, target_language=self.target_language, **self.namespace())
 
 
 class Viewlet(object):
@@ -168,4 +169,5 @@ class Viewlet(object):
             raise NotImplementedError(
                 '%r : Provide a template or override the render method' %
                 self.__class__)
-        return self.template.render(self, target_language=self.target_language)
+        return self.template.render(
+            self, target_language=self.target_language, **self.namespace())

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from cromlech.browser.interfaces import IRenderer, IViewSlot
+from cromlech.browser import IRenderable, IViewSlot
 from zope.interface import Attribute
 from zope.location import ILocation
 
@@ -11,7 +11,7 @@ class IViewletManager(IViewSlot, ILocation):
     viewlets = Attribute("A list of the components to aggregate.")
 
 
-class IViewlet(IRenderer, ILocation):
+class IViewlet(IRenderable, ILocation):
     """a viewlet is a component rendering a small part of the global view
     driven by a manager
     """

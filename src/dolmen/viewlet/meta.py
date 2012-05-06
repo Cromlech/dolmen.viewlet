@@ -3,9 +3,12 @@
 import martian
 import dolmen.viewlet
 from dolmen.viewlet import IViewletManager, IViewlet
-from cromlech.browser.directives import default_view_name
 from zope.interface import Interface
 from zope.component import provideAdapter
+
+
+def get_default_name(factory, module=None, **data):
+    return factory.__name__.lower()
 
 
 class ViewletManagerGrokker(martian.ClassGrokker):
@@ -14,7 +17,7 @@ class ViewletManagerGrokker(martian.ClassGrokker):
     martian.directive(dolmen.viewlet.request, default=Interface)
     martian.directive(dolmen.viewlet.view)
     martian.directive(dolmen.viewlet.provides, default=IViewletManager)
-    martian.directive(dolmen.viewlet.name, get_default=default_view_name)
+    martian.directive(dolmen.viewlet.name, get_default=get_default_name)
 
     def execute(self, factory, config,
                 context, request, view, provides, name, **kw):
@@ -34,7 +37,7 @@ class ViewletGrokker(martian.ClassGrokker):
     martian.directive(dolmen.viewlet.view)
     martian.directive(dolmen.viewlet.slot)
     martian.directive(dolmen.viewlet.provides, default=IViewlet)
-    martian.directive(dolmen.viewlet.name, get_default=default_view_name)
+    martian.directive(dolmen.viewlet.name, get_default=get_default_name)
 
     def execute(self, factory, config,
                 context, request, view, slot, provides, name, **kw):

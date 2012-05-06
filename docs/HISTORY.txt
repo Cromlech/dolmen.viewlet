@@ -1,6 +1,15 @@
 Changes
 =======
 
+0.3 (2012-05-06)
+----------------
+
+* The changes made in the `cromlech.brower` package (>= 0.5) are now
+  in place. The most important change comes from the template component
+  rendering call. Please check the changes in `dolmen.template` to
+  have more details about that.
+
+
 0.2 (2012-01-17)
 ----------------
 

@@ -4,7 +4,7 @@
 import dolmen.viewlet
 
 from cromlech.browser.interfaces import IViewSlot
-from cromlech.browser.testing import TestView, TestHTTPRequest
+from cromlech.browser.testing import TestView, TestRequest
 from grokcore.security import require
 from zope.component import getMultiAdapter
 from zope.interface import implements, classProvides
@@ -91,7 +91,7 @@ def test_manager_viewlet():
     """
     # We define the actors
     mammoth = object()
-    request = TestHTTPRequest()
+    request = TestRequest()
     view = TestView(mammoth, request)
     generic_template = Template()
 
