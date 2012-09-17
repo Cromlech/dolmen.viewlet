@@ -2,8 +2,7 @@
 
 # directives
 from grokcore.component import context, name, provides, order
-from cromlech.io.directives import request
-from cromlech.browser.directives import view, slot
+from cromlech.browser.directives import view, slot, request
 
 # interfaces
 from dolmen.viewlet.interfaces import IViewlet, IViewletManager
