@@ -1,35 +1,30 @@
 # -*- coding: utf-8 -*-
 
-from zope.component import getAdapters, getMultiAdapter
-from cromlech.browser import IView, IRequest
-from cromlech.i18n import ILanguage
+from cromlech.browser import IView, IRequest, sort_components
+from cromlech.i18n import getLanguage
 from dolmen.viewlet import IViewletManager, IViewlet
 from grokcore.component import baseclass, implements
 from grokcore.component.util import sort_components
 
+
 try:
-    import zope.security
+    import cromlech.security
+    from cromlech.security import ISecuredComponent, getInteraction
+    from zope.interface.interfaces import ComponentLookupError
 
-    def check_security(component, attribute):
+    def CHECKER(component):
         try:
-            return zope.security.canAccess(component, attribute)
-        except zope.security.interfaces.Forbidden:
-            return False
+            checker = ISecuredComponent(component)
+            interaction = getInteraction()
+            error = checker.__checker__(interaction)
+            if error is not None:
+                return False
+        except ComponentLookupError:
+            pass
+        return True
 
-    CHECKER = check_security
-    PROXY = zope.security.checker.ProxyFactory
 except ImportError:
     CHECKER = None
-    PROXY = None
-
-
-def security_wrapped(func):
-    def wrapped(*args, **kws):
-        raw = func(*args, **kws)
-        if PROXY is not None:
-            return PROXY(raw)
-        return raw
-    return wrapped
 
 
 def query_components(context, request, view, collection, interface=IViewlet):
@@ -42,10 +37,9 @@ def query_components(context, request, view, collection, interface=IViewlet):
     """
 
     def registry_components():
-        for name, component in getAdapters(
-            (context, request, view, collection), interface):
-
-            if CHECKER is not None and not CHECKER(component, 'render'):
+        for name, component in interface.all_components(
+                context, request, view, collection):
+            if CHECKER is not None and not CHECKER(component):
                 continue
 
             component.update()
@@ -69,7 +63,7 @@ def query_viewlet_manager(view, context=None, request=None,
     assert interface.isOrExtends(IViewletManager), (
         "interface must extends IViewletManager")
     assert IRequest.providedBy(request), "request must be an IRequest"
-    return getMultiAdapter((context, request, view), interface, name)
+    return interface.adapt(context, request, view, name=name)
 
 
 def aggregate_views(views):
@@ -82,7 +76,6 @@ class ViewletManager(object):
     """A collection of viewlet components.
     A viewlet manager is a manager meant to be used at a view level.
     """
-    baseclass()
     implements(IViewletManager)
 
     template = None
@@ -111,7 +104,7 @@ class ViewletManager(object):
 
     @property
     def target_language(self):
-        return ILanguage(self.request, None)
+        return getLanguage()
 
     def update(self, *args, **kwargs):
         self.viewlets = sort_components(list(query_components(
@@ -128,7 +121,6 @@ class Viewlet(object):
     """A renderable component, part of a collection.
     A viewlet is to be used at a view level.
     """
-    baseclass()
     implements(IViewlet)
 
     template = None
@@ -156,7 +148,7 @@ class Viewlet(object):
 
     @property
     def target_language(self):
-        return ILanguage(self.request, None)
+        return getLanguage()
 
     def update(self, *args, **kwargs):
         # Can be overriden easily.

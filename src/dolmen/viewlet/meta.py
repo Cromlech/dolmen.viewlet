@@ -1,52 +1,63 @@
 # -*- coding: utf-8 -*-
 
-import martian
-import dolmen.viewlet
-from dolmen.viewlet import IViewletManager, IViewlet
+from .interfaces import IViewletManager, IViewlet
+from crom import target, name, registry
+from cromlech.browser import IView, IRequest, request, context, view, slot
+from grokker import grokker, directive, validator
 from zope.interface import Interface
-from zope.component import provideAdapter
 
 
-def get_default_name(factory, module=None, **data):
-    return factory.__name__.lower()
+@grokker
+@directive(context)
+@directive(request)
+@directive(target)
+@directive(name)
+@directive(registry)
+def viewlet_manager_component(
+        scanner, pyname, obj, registry,
+        context=Interface, request=IRequest,
+        view=IView, provides=IViewletManager, name=None):
+
+    if name is None:
+        name = obj.__name__.lower()
+
+    obj.__component_name__ = name
+
+    assert provides.isOrExtends(IViewletManager)
+
+    def register():
+        registry.register((context, request, view), target, name, obj)
+
+    scanner.config.action(
+        callable=register
+        discriminator=('viewletManager',
+                       context, request, view, name, registry))
 
 
-class ViewletManagerGrokker(martian.ClassGrokker):
-    martian.component(dolmen.viewlet.ViewletManager)
-    martian.directive(dolmen.viewlet.context, default=Interface)
-    martian.directive(dolmen.viewlet.request, default=Interface)
-    martian.directive(dolmen.viewlet.view)
-    martian.directive(dolmen.viewlet.provides, default=IViewletManager)
-    martian.directive(dolmen.viewlet.name, get_default=get_default_name)
+@grokker
+@directive(context)
+@directive(request)
+@directive(view)
+@directive(slot)
+@directive(target)
+@directive(name)
+@directive(registry)
+def viewlet_component(
+        scanner, pyname, obj, registry,
+        context=Interface, request=IRequest,
+        view=IView, slot=IViewletManager, provides=IViewlet, name=None):
 
-    def execute(self, factory, config,
-                context, request, view, provides, name, **kw):
-        assert provides.isOrExtends(IViewletManager)
-        factory.__component_name__ = name
-        config.action(
-            discriminator=('viewletManager', context, request, view, name),
-            callable=provideAdapter,
-            args=(factory, (context, request, view), IViewletManager, name))
-        return True
+    if name is None:
+        name = obj.__name__.lower()
 
+    obj.__component_name__ = name
 
-class ViewletGrokker(martian.ClassGrokker):
-    martian.component(dolmen.viewlet.Viewlet)
-    martian.directive(dolmen.viewlet.context, default=Interface)
-    martian.directive(dolmen.viewlet.request, default=Interface)
-    martian.directive(dolmen.viewlet.view)
-    martian.directive(dolmen.viewlet.slot)
-    martian.directive(dolmen.viewlet.provides, default=IViewlet)
-    martian.directive(dolmen.viewlet.name, get_default=get_default_name)
+    assert provides.isOrExtends(IViewlet)
 
-    def execute(self, factory, config,
-                context, request, view, slot, provides, name, **kw):
-        assert provides.isOrExtends(IViewlet)
-        factory.__component_name__ = name
-        config.action(
-            discriminator=(
-                'viewlet', context, request, view, slot, name),
-            callable=provideAdapter,
-            args=(factory, (context, request, view, slot),
-                  provides, name))
-        return True
+    def register():
+        registry.register((context, request, view, slot), target, name, obj)
+
+    scanner.config.action(
+        callable=register
+        discriminator=('viewlet',
+                       context, request, view, slot, name, registry))

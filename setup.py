@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 from os.path import join
 
 name = 'dolmen.viewlet'
-version = '0.4.1'
+version = '1.0-crom'
 readme = open('README.txt').read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
@@ -12,10 +12,8 @@ history = open(join('docs', 'HISTORY.txt')).read()
 install_requires = [
     'cromlech.browser >= 0.5',
     'cromlech.i18n',
-    'grokcore.component',
     'martian',
     'setuptools',
-    'zope.component',
     'zope.interface',
     'zope.location',
     ]
@@ -24,7 +22,6 @@ install_requires = [
 tests_require = [
     'pytest',
     'cromlech.browser [test]',
-    'zope.configuration',
     'zope.testing',
     ]
 
