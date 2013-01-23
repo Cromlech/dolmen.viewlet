@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from .interfaces import IViewletManager, IViewlet
 from cromlech.browser import IView, IRequest, sort_components
 from cromlech.i18n import getLanguage
-from dolmen.viewlet import IViewletManager, IViewlet
-from grokcore.component import baseclass, implements
-from grokcore.component.util import sort_components
+from zope.interface import implements
 
 
 try:
@@ -51,7 +50,6 @@ def query_components(context, request, view, collection, interface=IViewlet):
     return registry_components()
 
 
-@security_wrapped
 def query_viewlet_manager(view, context=None, request=None,
                           interface=IViewletManager, name=''):
     """Retrieve a viewlet manager"""
@@ -63,7 +61,18 @@ def query_viewlet_manager(view, context=None, request=None,
     assert interface.isOrExtends(IViewletManager), (
         "interface must extends IViewletManager")
     assert IRequest.providedBy(request), "request must be an IRequest"
-    return interface.adapt(context, request, view, name=name)
+
+    try:
+        manager = interface.adapt(context, request, view, name=name)
+        if CHECKER is None:
+            return manager
+        else:
+            if CHECKER(component):
+                return manager
+            else:
+                return None
+    except ComponentLookupError:
+        return None
 
 
 def aggregate_views(views):

@@ -21,14 +21,9 @@ install_requires = [
 
 tests_require = [
     'pytest',
+    'cromlech.security',
     'cromlech.browser [test]',
     'zope.testing',
-    ]
-
-
-security_require = [
-    'grokcore.security >= 1.5',
-    'zope.security',
     ]
 
 
@@ -56,6 +51,5 @@ setup(name=name,
       install_requires=install_requires,
       extras_require={
           'test': tests_require,
-          'security': security_require,
           },
       )
