@@ -9,6 +9,7 @@ from cromlech.browser import IView, IViewSlot
 from cromlech.browser.testing import TestRequest, TestView
 from dolmen.viewlet import IViewlet, IViewletManager, Viewlet, ViewletManager
 from zope.interface.verify import verifyClass
+from cromlech.security import ContextualInteraction, Principal
 
 
 class Template(object):
@@ -58,3 +59,24 @@ def test_manager_viewlet():
     # we should retrieve it here
     manager = IViewSlot.adapt(mammoth, request, view, name='header')
     assert isinstance(manager, module.Header)
+
+    # Rending our manager should give us 1 viewlet.
+    # The reason is : there's no interaction, therefore
+    # protected viewlets are not computed.
+    manager.update()
+    rendering = manager.render()
+    assert rendering == "A nice logo\nBaseline"
+
+    # With an interaction, we should have a security context
+    # With a wrong user, the viewlet is not retrieved.
+    with ContextualInteraction(Principal('meaninglessguy@example.com')):
+        manager.update()
+        rendering = manager.render()
+        assert rendering == "A nice logo\nBaseline"
+
+    # With an interaction, we should have a security context
+    # With a wrong user, the viewlet is not retrieved.
+    with ContextualInteraction(Principal('admin@example.com')):
+        manager.update()
+        rendering = manager.render()
+        assert rendering == "A nice logo\nYou are allowed.\nBaseline"

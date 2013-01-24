@@ -8,19 +8,22 @@ from zope.interface import implements
 
 try:
     import cromlech.security
-    from cromlech.security import ISecuredComponent, getInteraction
+    from cromlech.security import ISecuredComponent, queryInteraction
     from zope.interface.interfaces import ComponentLookupError
 
     def CHECKER(component):
         try:
             checker = ISecuredComponent(component)
-            interaction = getInteraction()
-            error = checker.__checker__(interaction)
-            if error is not None:
-                return False
+            interaction = queryInteraction()
+            if interaction is not None:
+                error = checker.__check__(interaction)
+                if error is None:
+                    return True
+            return False
         except ComponentLookupError:
-            pass
-        return True
+            return True
+        return False
+
 
 except ImportError:
     CHECKER = None
@@ -36,8 +39,11 @@ def query_components(context, request, view, collection, interface=IViewlet):
     """
 
     def registry_components():
-        for name, component in interface.all_components(
+        for name, factory in interface.all_components(
                 context, request, view, collection):
+
+            component = factory(context, request, view, collection)
+
             if CHECKER is not None and not CHECKER(component):
                 continue
 
