@@ -1,6 +1,0 @@
-<configure xmlns="http://namespaces.zope.org/zope">
-
-  <include package="dolmen.viewlet" file="meta.zcml" />
-  <include package="dolmen.viewlet" file="security.zcml" />
-
-</configure>
