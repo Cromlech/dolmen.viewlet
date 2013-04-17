@@ -2,7 +2,7 @@
 
 from .interfaces import IViewletManager, IViewlet
 from cromlech.browser import IView, IRequest, sort_components
-from cromlech.i18n import getLanguage
+from cromlech.i18n import getLocale
 from zope.interface import implements
 
 
@@ -119,7 +119,7 @@ class ViewletManager(object):
 
     @property
     def target_language(self):
-        return getLanguage()
+        return getLocale()
 
     def update(self, *args, **kwargs):
         self.viewlets = sort_components(list(query_components(
@@ -163,7 +163,7 @@ class Viewlet(object):
 
     @property
     def target_language(self):
-        return getLanguage()
+        return getLocale()
 
     def update(self, *args, **kwargs):
         # Can be overriden easily.

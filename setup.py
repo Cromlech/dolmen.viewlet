@@ -12,7 +12,6 @@ history = open(join('docs', 'HISTORY.txt')).read()
 install_requires = [
     'cromlech.browser >= 0.5',
     'cromlech.i18n',
-    'martian',
     'setuptools',
     'zope.interface',
     'zope.location',
