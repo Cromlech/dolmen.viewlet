@@ -2,8 +2,8 @@
 
 from .interfaces import IViewletManager, IViewlet
 from cromlech.browser import IView, IRequest, sort_components
-from cromlech.i18n import getLocale
-from zope.interface import implements
+from cromlech.i18n import getLocalizer
+from zope.interface import implementer
 
 
 try:
@@ -87,11 +87,11 @@ def aggregate_views(views):
     return u'\n'.join([view.render() for view in views])
 
 
+@implementer(IViewletManager)
 class ViewletManager(object):
     """A collection of viewlet components.
     A viewlet manager is a manager meant to be used at a view level.
     """
-    implements(IViewletManager)
 
     template = None
 
@@ -118,8 +118,11 @@ class ViewletManager(object):
         return aggregate_views(viewlets)
 
     @property
-    def target_language(self):
-        return getLocale()
+    def translate(self):
+        localizer = getLocalizer()
+        if localizer is not None:
+            localizer.translate
+        return None
 
     def update(self, *args, **kwargs):
         self.viewlets = sort_components(list(query_components(
@@ -129,15 +132,14 @@ class ViewletManager(object):
         if self.template is None:
             return self.aggregate(self.viewlets)
         return self.template.render(
-           self, target_language=self.target_language, **self.namespace())
+           self, translate=self.translate, **self.namespace())
 
 
+@implementer(IViewlet)
 class Viewlet(object):
     """A renderable component, part of a collection.
     A viewlet is to be used at a view level.
     """
-    implements(IViewlet)
-
     template = None
     available = True
 
@@ -162,8 +164,11 @@ class Viewlet(object):
             }
 
     @property
-    def target_language(self):
-        return getLocale()
+    def translate(self):
+        localizer = getLocalizer()
+        if localizer is not None:
+            localizer.translate
+        return None
 
     def update(self, *args, **kwargs):
         # Can be overriden easily.
@@ -177,4 +182,4 @@ class Viewlet(object):
                 '%r : Provide a template or override the render method' %
                 self.__class__)
         return self.template.render(
-            self, target_language=self.target_language, **self.namespace())
+            self, translate=self.translate, **self.namespace())
