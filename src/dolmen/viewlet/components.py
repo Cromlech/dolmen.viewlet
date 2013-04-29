@@ -121,7 +121,7 @@ class ViewletManager(object):
     def translate(self):
         localizer = getLocalizer()
         if localizer is not None:
-            localizer.translate
+            return localizer.translate
         return None
 
     def update(self, *args, **kwargs):
@@ -167,7 +167,7 @@ class Viewlet(object):
     def translate(self):
         localizer = getLocalizer()
         if localizer is not None:
-            localizer.translate
+            return localizer.translate
         return None
 
     def update(self, *args, **kwargs):
