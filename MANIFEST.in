@@ -1,2 +1,2 @@
-recursive-include src/dolmen/viewlet *.txt *.py *.zcml
+recursive-include src/dolmen/viewlet *.py
 recursive-include docs *.txt
