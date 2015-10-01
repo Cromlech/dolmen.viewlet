@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 from os.path import join
 
 name = 'dolmen.viewlet'
-version = '1.0-crom'
+version = '1.0+crom'
 readme = open('README.txt').read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
