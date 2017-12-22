@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 
 from .interfaces import IViewletManager, IViewlet
+from crom import ComponentLookupError
 from cromlech.browser import IView, IRequest, sort_components
 from cromlech.i18n import getLocalizer
 from zope.interface import implementer
 
 try:
     from cromlech.security import getSecureLookup
-    security_wrapper, lookup_exceptions = getSecureLookup()
 
 except ImportError:
-    def noSecurity(func):
-        return func
-    security_wrapper = noSecurity
-    lookup_exceptions = (ComponentLookupError,)
+
+    def getSecureLookup():
+        def noSecurity(func):
+            return func
+        return noSecurity, tuple()
 
 
 def query_components(context, request, view, collection, interface=IViewlet):
@@ -24,20 +25,20 @@ def query_components(context, request, view, collection, interface=IViewlet):
     * Filters out the unavailable components.
     * Returns an iterable of components.
     """
+    security_wrapper, lookup_exceptions = getSecureLookup()
 
     def registry_components():
         for name, factory in interface.all_components(
                 context, request, view, collection):
-
             try:
                 component = security_wrapper(factory)(
                     context, request, view, collection)
+            except lookup_exceptions:  # Security exceptions
+                pass
+            else:
                 component.update()
                 if bool(component.available) is True:
                     yield component
-                
-            except lookup_exceptions:
-                continue
 
     assert interface.isOrExtends(IViewlet), "interface must extends IViewlet"
     assert IRequest.providedBy(request), "request must be an IRequest"
@@ -56,12 +57,16 @@ def query_viewlet_manager(view, context=None, request=None,
         "interface must extends IViewletManager")
     assert IRequest.providedBy(request), "request must be an IRequest"
 
+    security_wrapper, lookup_exceptions = getSecureLookup()
     try:
         lookup = security_wrapper(interface.adapt)
         manager = lookup(context, request, view, name=name)
+    except ComponentLookupError:
+        pass
+    except lookup_exceptions:  # Security exceptions
+        raise
+    else:
         return manager
-    except lookup_exceptions:
-        return None
 
 
 def aggregate_views(views):
