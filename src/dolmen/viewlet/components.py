@@ -5,26 +5,15 @@ from cromlech.browser import IView, IRequest, sort_components
 from cromlech.i18n import getLocalizer
 from zope.interface import implementer
 
-
 try:
-    import cromlech.security
-    from cromlech.security import IProtector, queryInteraction
-    from zope.interface.interfaces import ComponentLookupError
-
-    def CHECKER(component):
-        try:
-            checker = IProtector.component(component)
-            if checker is not None:
-                error = checker(component)
-                if error is not None:
-                    return False
-        except ComponentLookupError:
-            pass
-        return True
-
+    from cromlech.security import getSecureLookup
+    security_wrapper, lookup_exceptions = getSecureLookup()
 
 except ImportError:
-    CHECKER = None
+    def noSecurity(func):
+        return func
+    security_wrapper = noSecurity
+    lookup_exceptions = (ComponentLookupError,)
 
 
 def query_components(context, request, view, collection, interface=IViewlet):
@@ -40,14 +29,15 @@ def query_components(context, request, view, collection, interface=IViewlet):
         for name, factory in interface.all_components(
                 context, request, view, collection):
 
-            component = factory(context, request, view, collection)
-
-            if CHECKER is not None and not CHECKER(component):
+            try:
+                component = security_wrapper(factory)(
+                    context, request, view, collection)
+                component.update()
+                if bool(component.available) is True:
+                    yield component
+                
+            except lookup_exceptions:
                 continue
-
-            component.update()
-            if bool(component.available) is True:
-                yield component
 
     assert interface.isOrExtends(IViewlet), "interface must extends IViewlet"
     assert IRequest.providedBy(request), "request must be an IRequest"
@@ -67,15 +57,10 @@ def query_viewlet_manager(view, context=None, request=None,
     assert IRequest.providedBy(request), "request must be an IRequest"
 
     try:
-        manager = interface.adapt(context, request, view, name=name)
-        if CHECKER is None:
-            return manager
-        else:
-            if CHECKER(component):
-                return manager
-            else:
-                return None
-    except ComponentLookupError:
+        lookup = security_wrapper(interface.adapt)
+        manager = lookup(context, request, view, name=name)
+        return manager
+    except lookup_exceptions:
         return None
 
 
