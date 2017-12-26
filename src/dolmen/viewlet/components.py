@@ -7,14 +7,12 @@ from cromlech.i18n import getLocalizer
 from zope.interface import implementer
 
 try:
-    from cromlech.security import getSecureLookup
+    from cromlech.security import getSecurityGuards
 
 except ImportError:
 
-    def getSecureLookup():
-        def noSecurity(func):
-            return func
-        return noSecurity, tuple()
+    def getSecurityGuards():
+        return None, None
 
 
 def query_components(context, request, view, collection, interface=IViewlet):
@@ -25,20 +23,24 @@ def query_components(context, request, view, collection, interface=IViewlet):
     * Filters out the unavailable components.
     * Returns an iterable of components.
     """
-    security_wrapper, lookup_exceptions = getSecureLookup()
-
     def registry_components():
+        security_predict, security_check = getSecurityGuards()
+        
         for name, factory in interface.all_components(
                 context, request, view, collection):
-            try:
-                component = security_wrapper(factory)(
-                    context, request, view, collection)
-            except lookup_exceptions:  # Security exceptions
-                pass
-            else:
-                component.update()
-                if bool(component.available) is True:
-                    yield component
+
+            if security_predict is not None:
+                factory = security_predict(factory, swallow_errors=True)
+
+            if factory is not None:
+                component = factory(context, request, view, collection)
+                if security_check is not None:
+                    component = security_check(component, swallow_errors=True)
+
+                if component is not None:
+                    component.update()
+                    if bool(component.available) is True:
+                        yield component
 
     assert interface.isOrExtends(IViewlet), "interface must extends IViewlet"
     assert IRequest.providedBy(request), "request must be an IRequest"
@@ -57,14 +59,16 @@ def query_viewlet_manager(view, context=None, request=None,
         "interface must extends IViewletManager")
     assert IRequest.providedBy(request), "request must be an IRequest"
 
-    security_wrapper, lookup_exceptions = getSecureLookup()
+    security_predict, security_check = getSecurityGuards()
     try:
-        lookup = security_wrapper(interface.adapt)
-        manager = lookup(context, request, view, name=name)
+        factory = interface.component(context, request, view, name=name)
+        if factory is not None and security_predict is not None:
+            factory = security_predict(factory)  # raises if security error
+            manager = factory(context, request, view)
+            if security_check is not None:
+                manager = security_check(manager)  # raises if security error
     except ComponentLookupError:
         pass
-    except lookup_exceptions:  # Security exceptions
-        raise
     else:
         return manager
 
