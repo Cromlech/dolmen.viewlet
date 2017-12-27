@@ -28,7 +28,7 @@ def query_components(context, request, view, collection, interface=IViewlet):
         
         for name, factory in interface.all_components(
                 context, request, view, collection):
-
+            
             if security_predict is not None:
                 factory = security_predict(factory, swallow_errors=True)
 
