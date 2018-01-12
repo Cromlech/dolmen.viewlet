@@ -3,14 +3,17 @@
 """
 
 import crom
+import pytest
+
 from crom import testing
 from crom.implicit import implicit
 from cromlech.browser import IView, IViewSlot
 from cromlech.browser.testing import TestRequest as Request, TestView as View
-from dolmen.viewlet import IViewlet, IViewletManager, Viewlet, ViewletManager
-from zope.interface.verify import verifyClass
 from cromlech.security import ContextualInteraction, ContextualSecurityGuards
 from cromlech.security import Principal, security_check
+from cromlech.security.errors import MissingSecurityContext
+from dolmen.viewlet import IViewlet, IViewletManager, Viewlet, ViewletManager
+from zope.interface.verify import verifyClass
 
 
 class Template(object):
@@ -61,14 +64,20 @@ def test_manager_viewlet():
     manager = IViewSlot.adapt(mammoth, request, view, name='header')
     assert isinstance(manager, module.Header)
 
-    with ContextualSecurityGuards(None, security_check):
+    # With no security guards in place, we can render the manager
+    manager.update()
+    rendering = manager.render()
+    assert rendering == "A nice logo\nYou are allowed.\nBaseline"
 
-        # Rending our manager should give us 1 viewlet.
-        # The reason is : there's no interaction, therefore
-        # protected viewlets are not computed.
-        manager.update()
-        rendering = manager.render()
-        assert rendering == "A nice logo\nBaseline"
+
+    with ContextualSecurityGuards(None, security_check):
+        
+        # Rending our manager will fail.
+        # The reason is : there's no interaction but security
+        # guards are declared. Therefore, the security computation
+        # cannot go further:
+        with pytest.raises(MissingSecurityContext):
+            manager.update()
 
         # With an interaction, we should have a security context
         # With a wrong user, the viewlet is not retrieved.
