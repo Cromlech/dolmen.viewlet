@@ -3,3 +3,4 @@ git+https://github.com/Cromlech/grokker.git#egg=grokker
 git+https://github.com/Cromlech/cromlech.browser.git#egg=cromlech.browser 
 git+https://github.com/Cromlech/cromlech.i18n.git#egg=cromlech.i18n
 git+https://github.com/Cromlech/cromlech.security.git#egg=cromlech.security 
+BeautifulSoup4 >= 4.4
